@@ -14,6 +14,7 @@
   <name>Dataservice client parent project</name>
   <modules>
     <module>pdi-dataservice-client</module>
+    <module>pdi-dataservice-server</module>
     <module>assembly</module>
   </modules>
   <properties>

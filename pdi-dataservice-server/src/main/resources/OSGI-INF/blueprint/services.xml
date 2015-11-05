@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:pen="http://www.pentaho.com/xml/schemas/pentaho-blueprint"
+           xsi:schemaLocation="
+            http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+            http://www.pentaho.com/xml/schemas/pentaho-blueprint http://www.pentaho.com/xml/schemas/pentaho-blueprint.xsd
+            ">
+
+    <bean id="executor" scope="singleton" class="java.util.concurrent.Executors" factory-method="newCachedThreadPool"/>
+    <service id="executorService" ref="executor"
+             interface="java.util.concurrent.ExecutorService">
+    </service>
+
+    <bean id="uiFactory" class="org.pentaho.di.trans.dataservice.ui.UIFactory" scope="singleton"></bean>
+
+    <bean id="context" class="org.pentaho.di.trans.dataservice.DataServiceContext" scope="singleton">
+        <argument ref="pushDownFactories"/>
+        <argument ref="autoOptimizationServices"/>
+        <argument ref="cacheManager"/>
+        <argument ref="uiFactory"/>
+    </bean>
+
+    <reference id="lineageClient" interface="org.pentaho.metaverse.api.ILineageClient"/>
+    <reference id="cacheManager" interface="org.pentaho.caching.api.PentahoCacheManager"/>
+
+    <reference-list id="pushDownFactories" interface="org.pentaho.di.trans.dataservice.optimization.PushDownFactory"
+                    availability="optional"/>
+
+    <reference-list id="stepValidations" interface="org.pentaho.di.trans.dataservice.validation.StepValidation"
+                    availability="optional"/>
+
+    <reference-list id="autoOptimizationServices"
+                    interface="org.pentaho.di.trans.dataservice.optimization.AutoOptimizationService"
+                    availability="optional"/>
+
+    <!-- Local Client Service -->
+    <service id="dataServiceClientService" interface="org.pentaho.di.trans.dataservice.client.DataServiceClientService">
+        <bean class="org.pentaho.di.trans.dataservice.clients.DataServiceClient">
+            <argument ref="context"/>
+        </bean>
+    </service>
+    <!-- /Local Client Service -->
+
+    <!-- Parameter Generation Optimization -->
+    <bean id="paramGenFactory" scope="singleton"
+          class="org.pentaho.di.trans.dataservice.optimization.paramgen.ParameterGenerationFactory">
+        <argument ref="parameterGenerationServices"/>
+        <property name="lineageClient" ref="lineageClient"/>
+    </bean>
+
+    <reference-list id="parameterGenerationServices"
+                    interface="org.pentaho.di.trans.dataservice.optimization.paramgen.ParameterGenerationServiceFactory"
+                    availability="optional"/>
+
+    <service id="parameterGenerationService" ref="paramGenFactory"
+             interface="org.pentaho.di.trans.dataservice.optimization.PushDownFactory">
+    </service>
+
+    <service id="tableInputParamGen"
+             interface="org.pentaho.di.trans.dataservice.optimization.paramgen.ParameterGenerationServiceFactory">
+        <bean class="org.pentaho.di.trans.dataservice.optimization.paramgen.TableInputParameterGenerationFactory"/>
+    </service>
+
+    <service id="mongoInputParamGen"
+             interface="org.pentaho.di.trans.dataservice.optimization.paramgen.ParameterGenerationServiceFactory">
+        <bean class="org.pentaho.di.trans.dataservice.optimization.paramgen.MongodbInputParameterGenerationFactory"/>
+    </service>
+
+    <service id="autoParamGenService" interface="org.pentaho.di.trans.dataservice.optimization.AutoOptimizationService">
+        <bean factory-ref="paramGenFactory" factory-method="createAutoOptimizationService"/>
+    </service>
+
+    <service id="mongoDbBasicVal" interface="org.pentaho.di.trans.dataservice.validation.StepValidation">
+        <bean class="org.pentaho.di.trans.dataservice.validation.MongoDbBasicValidation"/>
+    </service>
+
+    <service id="tableInputVal" interface="org.pentaho.di.trans.dataservice.validation.StepValidation">
+        <bean class="org.pentaho.di.trans.dataservice.validation.TableInputValidation"/>
+    </service>
+
+    <service id="dataServiceStepVal" interface="org.pentaho.di.trans.dataservice.validation.StepValidation">
+        <bean class="org.pentaho.di.trans.dataservice.validation.DataServiceStepValidation">
+            <argument ref="lineageClient"/>
+            <argument ref="paramGenFactory"/>
+        </bean>
+    </service>
+    <!-- /Parameter Generation Optimization -->
+
+    <!-- Service Cache Optimization -->
+    <bean id="serviceCacheFactory" scope="singleton"
+          class="org.pentaho.di.trans.dataservice.optimization.cache.ServiceCacheFactory">
+        <argument ref="cacheManager"/>
+        <argument ref="executor"/>
+    </bean>
+    <service id="serviceCacheOptimization" ref="serviceCacheFactory"
+             interface="org.pentaho.di.trans.dataservice.optimization.PushDownFactory">
+    </service>
+
+    <bean id="clearCacheServlet" class="org.pentaho.di.trans.dataservice.optimization.cache.ResetCacheServlet"
+          scope="singleton">
+        <argument ref="serviceCacheFactory"/>
+        <pen:di-plugin type="org.pentaho.di.core.plugins.CartePluginType"/>
+    </bean>
+    <!-- /Service Cache Optimization -->
+</blueprint>
