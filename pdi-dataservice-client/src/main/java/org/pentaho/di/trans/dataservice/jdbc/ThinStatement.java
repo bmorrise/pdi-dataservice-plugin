@@ -22,6 +22,7 @@
 
 package org.pentaho.di.trans.dataservice.jdbc;
 
+import org.pentaho.di.core.Const;
 import org.pentaho.di.trans.dataservice.jdbc.annotation.NotSupported;
 
 import java.io.DataInputStream;
@@ -56,6 +57,10 @@ public class ThinStatement extends ThinBase implements Statement {
   @Override
   public void cancel() throws SQLException {
     if ( resultSet != null ) {
+      ThinResultHeader header = resultSet.getHeader();
+      if ( !Const.isEmpty( header.getServiceObjectId() ) ) {
+        connection.getClientService().cancelQuery( header.getExecutorId() );
+      }
       resultSet.close();
     }
   }

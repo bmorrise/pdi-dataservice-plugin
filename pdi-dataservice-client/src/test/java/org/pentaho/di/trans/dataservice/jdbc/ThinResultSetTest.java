@@ -71,7 +71,9 @@ public class ThinResultSetTest extends BaseResultSetTest {
 
   @Before
   public void setUp() throws Exception {
-    resultHeader = new ThinResultHeader( "resultSetTest", "serviceTrans", "serviceId", "sqlTrans", "sqlId", rowMeta );
+    resultHeader =
+        new ThinResultHeader( "resultSetTest", "serviceTrans", "serviceId", "sqlTrans", "sqlId", "executorId",
+            rowMeta );
     thinResultSet = new ThinResultSet( resultHeader, dataInputStream );
     doAnswer( new Answer() {
       @Override public Object[] answer( InvocationOnMock invocation ) throws Throwable {

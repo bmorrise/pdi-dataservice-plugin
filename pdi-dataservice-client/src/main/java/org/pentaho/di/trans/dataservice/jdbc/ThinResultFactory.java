@@ -49,6 +49,7 @@ public class ThinResultFactory {
       String serviceObjectId = dataInputStream.readUTF();
       String sqlTransName = dataInputStream.readUTF();
       String sqlObjectId = dataInputStream.readUTF();
+      String executorId = dataInputStream.readUTF();
 
       // Get the row metadata...
       //
@@ -56,7 +57,8 @@ public class ThinResultFactory {
         KettleClientEnvironment.init();
       }
       RowMeta rowMeta = new RowMeta( dataInputStream );
-      return new ThinResultHeader( serviceName, serviceTransName, serviceObjectId, sqlTransName, sqlObjectId, rowMeta );
+      return new ThinResultHeader( serviceName, serviceTransName, serviceObjectId, sqlTransName, sqlObjectId,
+          executorId, rowMeta );
     } catch ( Exception e ) {
       Throwables.propagateIfPossible( e, SQLException.class );
       throw new SQLException( "Unable to load result set", e );

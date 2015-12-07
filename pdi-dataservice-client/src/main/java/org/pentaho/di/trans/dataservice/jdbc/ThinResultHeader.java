@@ -25,6 +25,7 @@ package org.pentaho.di.trans.dataservice.jdbc;
 import org.pentaho.di.core.row.RowMetaInterface;
 
 public class ThinResultHeader {
+  private final String executorId;
   private final String serviceName;
   private final String serviceTransName;
   private final String serviceObjectId;
@@ -32,14 +33,22 @@ public class ThinResultHeader {
   private final String sqlObjectId;
   private final RowMetaInterface rowMeta;
 
-  public ThinResultHeader( String serviceName, String serviceTransName, String serviceObjectId, String sqlTransName,
-                           String sqlObjectId, RowMetaInterface rowMeta ) {
+  public ThinResultHeader( String serviceName, String serviceTransName, String serviceObjectId,
+      String sqlTransName, String sqlObjectId, String executorId, RowMetaInterface rowMeta ) {
     this.serviceName = serviceName;
     this.serviceTransName = serviceTransName;
     this.serviceObjectId = serviceObjectId;
     this.sqlTransName = sqlTransName;
     this.sqlObjectId = sqlObjectId;
+    this.executorId = executorId;
     this.rowMeta = rowMeta;
+  }
+
+  /**
+   * @return the executorId
+   */
+  public String getExecutorId() {
+    return executorId;
   }
 
   /**

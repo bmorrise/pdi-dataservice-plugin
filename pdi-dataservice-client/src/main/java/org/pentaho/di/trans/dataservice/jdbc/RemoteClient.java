@@ -89,6 +89,19 @@ class RemoteClient implements DataServiceClientService {
     }
   }
 
+  @Override public void cancelQuery( String executorId ) throws SQLException {
+    try {
+      String url = connection.constructUrl( "/stopExecutor" );
+      PostMethod method = new PostMethod( url );
+
+      method.addParameter( "executorId", executorId );
+
+      execMethod( method );
+    } catch ( Exception e ) {
+      throw serverException( e );
+    }
+  }
+
   @Override public List<ThinServiceInformation> getServiceInformation() throws SQLException {
     List<ThinServiceInformation> services = Lists.newArrayList();
 

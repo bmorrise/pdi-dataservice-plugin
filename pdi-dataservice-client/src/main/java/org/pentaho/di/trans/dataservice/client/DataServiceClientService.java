@@ -34,5 +34,6 @@ public interface DataServiceClientService {
   void setMetaStore( IMetaStore metaStore );
   void setRepository( Repository repository );
   DataInputStream query( String sql, int maxRows ) throws SQLException;
+  void cancelQuery( String executorId ) throws SQLException;
   List<ThinServiceInformation> getServiceInformation() throws SQLException;
 }
