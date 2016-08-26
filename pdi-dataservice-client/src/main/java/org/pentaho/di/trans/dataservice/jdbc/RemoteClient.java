@@ -36,6 +36,7 @@ import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.trans.dataservice.client.DataServiceClientService;
+import org.pentaho.di.trans.dataservice.client.DataServiceManagerService;
 import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -63,6 +64,7 @@ class RemoteClient implements DataServiceClientService {
   private final HttpClient client;
   private DocumentBuilderFactory docBuilderFactory;
   private static final String SERVICE_PATH = "/sql/";
+  private DataServiceManagerService dataServiceManager = null;
 
   RemoteClient( ThinConnection connection, HttpClient client ) {
     this.connection = connection;
@@ -101,6 +103,11 @@ class RemoteClient implements DataServiceClientService {
   @Override public List<ThinServiceInformation> getServiceInformation() throws SQLException {
     List<ThinServiceInformation> services = Lists.newArrayList();
 
+    if ( ThinConnection.dataServiceManagerService != null ) {
+      return ThinConnection.dataServiceManagerService.getServiceInformation();
+    }
+
+
     try {
       String result = execService( "/listServices" );
       Document doc = XMLHandler.loadXMLString( createDocumentBuilder(), result );
@@ -122,6 +129,11 @@ class RemoteClient implements DataServiceClientService {
   }
 
   @Override public ThinServiceInformation getServiceInformation( String name ) throws SQLException {
+
+    if ( ThinConnection.dataServiceManagerService != null ) {
+      return ThinConnection.dataServiceManagerService.getServiceInformation( name );
+    }
+
     try {
       String result = execService( "/listServices" );
       Document doc = XMLHandler.loadXMLString( createDocumentBuilder(), result );
@@ -145,6 +157,11 @@ class RemoteClient implements DataServiceClientService {
   }
 
   @Override public List<String> getServiceNames() throws SQLException {
+
+    if ( ThinConnection.dataServiceManagerService != null ) {
+      return ThinConnection.dataServiceManagerService.getServiceNames();
+    }
+
     List<String> serviceNames = new ArrayList<String>();
     try {
       String result = execService( "/listServices" );
@@ -211,6 +228,15 @@ class RemoteClient implements DataServiceClientService {
   private static SQLException serverException( Exception e ) throws SQLException {
     Throwables.propagateIfPossible( e, SQLException.class );
     throw new SQLException( "Error connecting to server", e );
+  }
+
+  public DataServiceManagerService getDataServiceManagerService() {
+    return dataServiceManager;
+  }
+
+  public void setDataServiceManagerService(
+    DataServiceManagerService dataServiceManagerService ) {
+    this.dataServiceManager = dataServiceManagerService;
   }
 
   @Deprecated

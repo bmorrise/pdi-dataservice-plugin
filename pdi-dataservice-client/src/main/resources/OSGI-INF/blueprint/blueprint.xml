@@ -17,4 +17,12 @@
         <pen:di-plugin type="org.pentaho.di.core.plugins.LifecyclePluginType" />
     </bean>
 
+    <reference id="dataServiceManagerService" interface="org.pentaho.di.trans.dataservice.client.DataServiceManagerService" availability="optional">
+        <reference-listener ref="DataServiceManagerLifecycleListener" bind-method="bind" unbind-method="unbind" />
+    </reference>
+
+    <bean id="DataServiceManagerLifecycleListener" class="org.pentaho.di.trans.dataservice.client.DataServiceManagerLifecycleListener">
+        <pen:di-plugin type="org.pentaho.di.core.plugins.LifecyclePluginType" />
+    </bean>
+
 </blueprint>

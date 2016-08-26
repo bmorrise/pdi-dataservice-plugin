@@ -38,6 +38,7 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.database.BaseDatabaseMeta;
 import org.pentaho.di.trans.dataservice.client.DataServiceClientService;
 import org.pentaho.di.trans.dataservice.jdbc.annotation.NotSupported;
+import org.pentaho.di.trans.dataservice.client.DataServiceManagerService;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -76,6 +77,7 @@ public class ThinConnection extends ThinBase implements Connection {
       + "KettleThin.webappname";
 
   public static DataServiceClientService localClient;
+  public static DataServiceManagerService dataServiceManagerService;
   private DataServiceClientService clientService;
 
   private final String url;
